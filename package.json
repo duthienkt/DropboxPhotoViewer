@@ -1,0 +1,41 @@
+{
+  "name": "dropboxphotoviewer",
+  "version": "0.0.1",
+  "description": "dropbox, photo-viewer",
+  "main": "index.js",
+  "dependencies": {
+    "absol": "^1.15.11",
+    "absol-acomp": "^0.9.52",
+    "absol-form": "github:duthienkt/absol-form",
+    "dropbox": "^7.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "babel-minify-webpack-plugin": "^0.3.1",
+    "css-loader": "^2.1.1",
+    "raw-loader": "^2.0.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack-dev-server --config webpack.config.js --publicx absol.cf:9000",
+    "dist": "webpack --config webpack.config.js --progress --profile --colors --mode production",
+    "dist-node": "babel  ./js/core --out-dir ./dist/lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/duthienkt/DropboxPhotoViewer.git"
+  },
+  "author": "Pham Quoc Du Thien",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/duthienkt/DropboxPhotoViewer/issues"
+  },
+  "homepage": "https://github.com/duthienkt/DropboxPhotoViewer#readme"
+}
