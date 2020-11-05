@@ -42,6 +42,9 @@ NikMi500px.prototype.CONFIG_STORE_KEY = "NikMi500px_Config";
 
 NikMi500px.prototype.onStart = function () {
     this.toggleToolTab('explorer');
+    this.folderViewer.start();
+    this.fileExplorer.start();
+
 };
 
 NikMi500px.prototype.createView = function () {

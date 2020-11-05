@@ -1,8 +1,12 @@
+import '../../style/folderviewer.css';
 import Fragment from "absol/src/AppPattern/Fragment";
 import OOP from "absol/src/HTML5/OOP";
 import {Dropbox} from "dropbox/src/dropbox";
 import {$, _} from "./Core";
 import Thumbnail from "../dom/Thumbnail";
+import SnackBar from "absol-acomp/js/Snackbar";
+import {fileSize2Text} from "../utils";
+import R from "./R";
 
 var SUPPORT_EXT = ["3g2", "3ga", "3gp", "7z", "aa", "aac", "ac", "accdb", "accdt", "ace", "adn", "ai", "aif", "aifc",
     "aiff", "ait", "amr", "ani", "apk", "app", "applescript", "asax", "asc", "ascx", "asf", "ash", "ashx", "asm",
@@ -45,12 +49,19 @@ function FolderViewer(dropbox) {
     Fragment.call(this);
     this.dropbox = dropbox;
     this.thumbnailCache = {};
+    this.rootEntry = null;
 }
 
 OOP.mixClass(FolderViewer, Fragment);
 
+
+FolderViewer.prototype.onStart = function () {
+    this.fileExplorer = this.getContext(R.FILE_EXPLORER);
+};
+
 FolderViewer.prototype.createView = function () {
     this.$view = _({
+        tag: 'dropzone',
         class: 'dpv-folder-viewer',
         child: [
             {
@@ -58,8 +69,15 @@ FolderViewer.prototype.createView = function () {
             },
             {
                 class: 'dpv-folder-viewer-body'
-            }
-        ]
+            },
+            {
+                class: 'dpv-folder-viewer-drop-modal',
+                props: {}
+            },
+        ],
+        on: {
+            filedrop: this.ev_fileDrop.bind(this)
+        }
     });
     this.$body = $('.dpv-folder-viewer-body', this.$view);
 };
@@ -67,6 +85,7 @@ FolderViewer.prototype.createView = function () {
 FolderViewer.prototype.viewFolder = function (rootEntry) {
     var thisV = this;
     this.$body.clearChild();
+    this.rootEntry = rootEntry;
     rootEntry.child.forEach(function (childEntry) {
         var thumbnailElt = _({
             tag: 'thumbnail',
@@ -113,6 +132,31 @@ FolderViewer.prototype.viewFolder = function (rootEntry) {
         thisV.$body.addChild(wrapperElt);
     });
 };
+
+FolderViewer.prototype.ev_fileDrop = function (event) {
+    var thisV = this;
+    event.files.reduce(function (sync, file) {
+        return sync.then(function () {
+            return thisV.dropbox.filesUpload({
+                contents: file,
+                path: '/' + thisV.rootEntry.path.concat(file.name).join('/')
+            }).then(function (res) {
+                var result = res.result;
+                if (!result.error) {
+                    SnackBar.show('Uploaded: ' + result.name + '(' + fileSize2Text(result.sixe) + ')');
+                }
+                else {
+                    SnackBar.show('Error: ' + result.error);
+                }
+            })
+        });
+    }, Promise.resolve())
+        .then(function () {
+            thisV.fileExplorer.reloadTree().then(function () {
+                thisV.fileExplorer.viewFolder(thisV.rootEntry.path);
+            })
+        });
+}
 
 
 export default FolderViewer;

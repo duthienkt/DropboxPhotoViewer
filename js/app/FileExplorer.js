@@ -44,12 +44,12 @@ FileExplorer.prototype.createView = function () {
 
 FileExplorer.prototype.onStart = function () {
     this.folderViewer = this.getContext(R.FOLDER_VIEWER);
-    this.reloadTree();
+    this.reloadTree().then(this.viewFolder.bind(this, []));
 };
 
 FileExplorer.prototype.reloadTree = function () {
     var thisF = this;
-    this.dropbox.filesListFolder({ path: '', recursive: true }).then(function (res) {
+    return this.dropbox.filesListFolder({ path: '', recursive: true }).then(function (res) {
         thisF.$root.clearChild();
         thisF.$root.dropboxData = {
             name: 'NikMi500px',
@@ -99,7 +99,6 @@ FileExplorer.prototype.reloadTree = function () {
                 parent.dropboxData.child.push(Object.assign({ path: cPath }, entry));
             }
         });
-        thisF.viewFolder([]);
     });
 };
 

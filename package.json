@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "absol": "^1.15.12",
-    "absol-acomp": "^0.9.52",
+    "absol-acomp": "github:duthienkt/absol-acomp",
     "absol-form": "github:duthienkt/absol-form",
     "dropbox": "^7.3.1"
   },
