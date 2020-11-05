@@ -6,3 +6,8 @@
 .dpv-app{
     font-size: 14px;
 }
+
+.as-form-editor-editor-space-container .dpv-folder-viewer{
+    width: 100%;
+    height: 100%;
+}

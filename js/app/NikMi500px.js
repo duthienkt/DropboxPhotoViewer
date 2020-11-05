@@ -8,7 +8,9 @@ import Draggable from "absol-acomp/js/Draggable";
 import FormEditor from "absol-form/js/editor/FormEditor";
 import Dom from "absol/src/HTML5/Dom";
 import Dropbox from "dropbox/src/dropbox";
-import DropboxFileExplorer from "./DropBoxFileExplorer";
+import FileExplorer from "./FileExplorer";
+import FolderViewer from "./FolderViewer";
+import R from "./R";
 
 
 /***
@@ -20,8 +22,14 @@ function NikMi500px(option) {
     BaseEditor.call(this);
     this.option = option;
     this.prefix = randomIdent(12);
-    this.dropbox = new Dropbox({ accessToken: this.option.accessToken, fetch: window.fetch.bind(window)});
-    this.fileExplorer = new DropboxFileExplorer(this.dropbox);
+    this.dropbox = new Dropbox({ accessToken: this.option.accessToken, fetch: window.fetch.bind(window) });
+    this.fileExplorer = new FileExplorer(this.dropbox);
+    this.setContext(R.FILE_EXPLORER, this.fileExplorer);
+    this.folderViewer = new FolderViewer(this.dropbox);
+    this.setContext(R.FOLDER_VIEWER, this.folderViewer);
+    this.fileExplorer.attach(this);
+    this.folderViewer.attach(this);
+
 }
 
 OOP.mixClass(NikMi500px, BaseEditor);
@@ -92,7 +100,8 @@ NikMi500px.prototype.createView = function () {
             {
                 class: 'as-form-editor-empty-space',
                 style: {
-                    left: 'calc(' + this.config.leftSiteWidthPercent + "%)"
+                    left: 'calc(' + this.config.leftSiteWidthPercent + "%)",
+                    visibility: 'hidden'
                 },
                 child: {
                     tag: 'frame-ico',
@@ -112,14 +121,9 @@ NikMi500px.prototype.createView = function () {
                 class: 'as-form-editor-editor-space-container',
                 style: {
                     left: 'calc(' + this.config.leftSiteWidthPercent + "%)",
-                    visibility: 'hidden'
                 },
-                child: {
-                    tag: 'tabview',
-                    class: 'as-form-editor-main-tabview'
-                }
+                child: this.folderViewer.getView()
             },
-
             {
                 class: ['as-form-editor-resizer', 'vertical', 'left-site'],
                 style: {
@@ -133,8 +137,8 @@ NikMi500px.prototype.createView = function () {
     });
 
     this.tabList = {
-        'explorer':{
-            $tab: $('#'+this.prefix + 'tab-explorer', this.$view),
+        'explorer': {
+            $tab: $('#' + this.prefix + 'tab-explorer', this.$view),
             fragment: this.fileExplorer
         }
     }
@@ -166,17 +170,14 @@ NikMi500px.prototype.createView = function () {
 NikMi500px.prototype.ev_preDragLeftResizer = FormEditor.prototype.ev_preDragLeftResizer;
 NikMi500px.prototype.ev_endDragLeftResizer = FormEditor.prototype.ev_endDragLeftResizer;
 NikMi500px.prototype.ev_dragLeftResizer = FormEditor.prototype.ev_dragLeftResizer;
-
 NikMi500px.prototype.setLeftSiteWidthPercent = FormEditor.prototype.setLeftSiteWidthPercent;
 
-NikMi500px.prototype.toggleToolTab = function (name){
-    if (name == this._lastToolTabName) return ;
-    if (this._lastToolTabName){
+NikMi500px.prototype.toggleToolTab = function (name) {
+    if (name == this._lastToolTabName) return;
+    if (this._lastToolTabName) {
         this.tabList[this._lastToolTabName].fragment.pause();
     }
-    console.log()
     this._lastToolTabName = name;
-    console.log(this.tabList)
     this.tabList[this._lastToolTabName].$tab.requestActive();
     this.tabList[this._lastToolTabName].fragment.start();
 };
