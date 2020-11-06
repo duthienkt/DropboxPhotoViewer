@@ -36,6 +36,9 @@ FileExplorer.prototype.createView = function () {
                     }
                 },
                 status: 'open'
+            },
+            on:{
+                press: this.viewFolder.bind(this, [])
             }
         }
     });
