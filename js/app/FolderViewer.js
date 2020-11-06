@@ -7,6 +7,8 @@ import Thumbnail from "../dom/Thumbnail";
 import SnackBar from "absol-acomp/js/Snackbar";
 import {fileSize2Text} from "../utils";
 import R from "./R";
+import XRequest from "absol-x-request/src/browser/XRequest";
+import config from "./config";
 
 var SUPPORT_EXT = ["3g2", "3ga", "3gp", "7z", "aa", "aac", "ac", "accdb", "accdt", "ace", "adn", "ai", "aif", "aifc",
     "aiff", "ait", "amr", "ani", "apk", "app", "applescript", "asax", "asc", "ascx", "asf", "ash", "ashx", "asm",
@@ -136,20 +138,39 @@ FolderViewer.prototype.viewFolder = function (rootEntry) {
 FolderViewer.prototype.ev_fileDrop = function (event) {
     var thisV = this;
     event.files.reduce(function (sync, file) {
+        if (file.size > 150000000){
+            SnackBar.show("Can not upload " + file.name + ' '+ fileSize2Text(file.size) + ' - TOO BIG')
+            return  sync;
+        }
         return sync.then(function () {
-            return thisV.dropbox.filesUpload({
-                contents: file,
-                path: '/' + thisV.rootEntry.path.concat(file.name).join('/')
-            }).then(function (res) {
-                var result = res.result;
-                if (!result.error) {
-                    SnackBar.show('Uploaded: ' + result.name + '(' + fileSize2Text(result.sixe) + ')');
+            SnackBar.show("Upload " + file.name + ' ' + fileSize2Text(file.size))
+
+            return new Promise(function (resolve) {
+                var fileReader = new FileReader();
+                fileReader.onloadend = function () {
+                    new XRequest({
+                        url: 'https://content.dropboxapi.com/2/files/upload',
+                        method: "POST"
+                    })
+                        .header({
+                            Authorization: 'Bearer ' + config.accessToken,
+                            'Dropbox-API-Arg': JSON.stringify({
+                                path: '/' + thisV.rootEntry.path.concat(file.name).join('/'),
+                                mode: 'add',
+                                autorename: false,
+                                mute: false,
+                                strict_conflict: false
+                            })
+                        })
+                        .on('uploadprogress', function (event) {
+                            SnackBar.show("Upload " + file.name + ' ' + Math.floor(event.loaded * 100 / event.total) + '%')
+                        })
+                        .binary(fileReader.result)
+                        .exec().then(resolve);
                 }
-                else {
-                    SnackBar.show('Error: ' + result.error);
-                }
-            })
-        });
+                fileReader.readAsArrayBuffer(file);
+            });
+        })
     }, Promise.resolve())
         .then(function () {
             thisV.fileExplorer.reloadTree().then(function () {

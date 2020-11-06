@@ -4,9 +4,10 @@
   "description": "dropbox, photo-viewer",
   "main": "index.js",
   "dependencies": {
-    "absol": "^1.15.12",
+    "absol": "github:duthienkt/absol",
     "absol-acomp": "github:duthienkt/absol-acomp",
     "absol-form": "github:duthienkt/absol-form",
+    "absol-x-request": "github:duthienkt/absol-x-request",
     "dropbox": "^7.3.1"
   },
   "devDependencies": {
