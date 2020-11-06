@@ -91,6 +91,7 @@ FolderViewer.prototype.viewFolder = function (rootEntry) {
     rootEntry.child.forEach(function (childEntry) {
         var thumbnailElt = _({
             tag: 'thumbnail',
+            extendEvent: 'contextmenu',
             props: {
                 imgSrc: 'https://absol.cf/exticons/vivid/folder.svg',
                 filename: childEntry.name
@@ -138,9 +139,9 @@ FolderViewer.prototype.viewFolder = function (rootEntry) {
 FolderViewer.prototype.ev_fileDrop = function (event) {
     var thisV = this;
     event.files.reduce(function (sync, file) {
-        if (file.size > 150000000){
-            SnackBar.show("Can not upload " + file.name + ' '+ fileSize2Text(file.size) + ' - TOO BIG')
-            return  sync;
+        if (file.size > 150000000) {
+            SnackBar.show("Can not upload " + file.name + ' ' + fileSize2Text(file.size) + ' - TOO BIG')
+            return sync;
         }
         return sync.then(function () {
             SnackBar.show("Upload " + file.name + ' ' + fileSize2Text(file.size))
